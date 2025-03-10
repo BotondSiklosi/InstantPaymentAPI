@@ -1,5 +1,6 @@
 package hu.java.instantpaymentapi.entity;
 
+import hu.java.instantpaymentapi.model.enums.TransactionStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +35,7 @@ public class Transaction {
     private String currency;
 
     @Column(name = "status")
-    private String status;
+    private TransactionStatusEnum status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

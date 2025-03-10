@@ -23,7 +23,13 @@ public class PaymentController {
             @RequestParam String receiverAccountId,
             @RequestParam BigDecimal amount,
             @RequestParam String currency) {
-        return null;
+
+        try {
+            String response = paymentService.processPayment(senderAccountId, receiverAccountId, amount, currency);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }
