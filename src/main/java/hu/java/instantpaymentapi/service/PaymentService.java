@@ -55,7 +55,7 @@ public class PaymentService {
             transaction = saveTransactionIntoDB(senderAccountId, receiverAccountId, amount, currency, TransactionStatusEnum.FAILED);
         }
 
-        kafkaProducerService.sendMessage("transaction-notifications", transaction.toString());
+        kafkaProducerService.sendMessage("transaction-notifications", transaction.getId().toString(), transaction.toString());
 
         paymentProcessResponse.put("transactionId", transaction.getId().toString());
         paymentProcessResponse.put("status", transaction.getStatus().name());

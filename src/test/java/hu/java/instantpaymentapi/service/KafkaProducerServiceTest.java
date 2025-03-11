@@ -31,6 +31,7 @@ public class KafkaProducerServiceTest {
     public void testSendMessage_Success() throws Exception {
         String topic = "test-topic";
         String message = "test-message";
+        String transactionId = "123123";
 
         RecordMetadata recordMetadata = new RecordMetadata(new TopicPartition(topic, 0), 0, 0, 0, 0L, 0, 0);
         SendResult<String, String> sendResult = new SendResult<>(null, recordMetadata);
@@ -41,7 +42,7 @@ public class KafkaProducerServiceTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
 
-        kafkaProducerService.sendMessage(topic, message);
+        kafkaProducerService.sendMessage(topic,transactionId, message);
 
         verify(kafkaTemplate, times(1)).send(topic, message);
 
@@ -53,6 +54,7 @@ public class KafkaProducerServiceTest {
     public void testSendMessage_Failure() throws Exception {
         String topic = "test-topic";
         String message = "test-message";
+        String transactionId = "123123";
 
         CompletableFuture<SendResult<String, String>> future = new CompletableFuture<>();
         future.completeExceptionally(new RuntimeException("Failed to send message"));
@@ -63,7 +65,7 @@ public class KafkaProducerServiceTest {
         System.setErr(new PrintStream(outputStream));
 
         try {
-            kafkaProducerService.sendMessage(topic, message);
+            kafkaProducerService.sendMessage(topic,transactionId, message);
 
             verify(kafkaTemplate, times(1)).send(topic, message);
 
