@@ -84,5 +84,5 @@ CREATE TABLE dbuser.TRANSACTION
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/instant-payment-api.git
-   cd instant-payment-api
+   git clone https://github.com/BotondSiklosi/InstantPaymentAPI.git
+   cd InstantPaymentAPI
