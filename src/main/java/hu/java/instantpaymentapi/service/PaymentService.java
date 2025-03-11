@@ -29,7 +29,10 @@ public class PaymentService {
 
         Map<String, String> paymentProcessResponse = new HashMap<>();
         Transaction transaction;
-
+        // checks for possible failures like Account not found or Insufficient balance
+        // Creates a transaction and save it into the Transaction Table
+        // Send notification using kafka producer
+        // returns response JSON with the transaction information
         try {
             Account sender = accountRepository.findByAccountId(senderAccountId)
                     .orElseThrow(() -> new RuntimeException("Sender account not found: " + senderAccountId));

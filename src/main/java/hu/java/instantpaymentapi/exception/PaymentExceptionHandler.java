@@ -27,5 +27,5 @@ public class PaymentExceptionHandler {
     public static class ErrorResponse {
         private String errorCode;
         private String message;
-        }
+    }
 }

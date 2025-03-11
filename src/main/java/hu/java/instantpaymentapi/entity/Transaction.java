@@ -35,12 +35,9 @@ public class Transaction {
     private String currency;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private TransactionStatusEnum status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-
-
-
 }

@@ -28,5 +28,4 @@ public class Account {
 
     @Column(name = "currency")
     private String currency;
-
 }
