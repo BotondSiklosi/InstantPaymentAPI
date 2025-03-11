@@ -25,21 +25,21 @@ public class PaymentService {
     private final KafkaProducerService kafkaProducerService;
 
     @Transactional
-    public String processPayment(String senderAccountId, String receiverAccountId, BigDecimal amount, String currency) {
+    public Map<String, String> processPayment(String senderAccountId, String receiverAccountId, BigDecimal amount, String currency) {
 
         Map<String, String> paymentProcessResponse = new HashMap<>();
         Transaction transaction;
 
         try {
             Account sender = accountRepository.findByAccountId(senderAccountId)
-                    .orElseThrow(() -> new RuntimeException("Sender account not found"));
+                    .orElseThrow(() -> new RuntimeException("Sender account not found: " + senderAccountId));
 
             if (amount.compareTo(sender.getBalance()) < 0) {
-                throw new RuntimeException("Sender account balance is less than sender account balance");
+                throw new RuntimeException("Insufficient balance for: " + senderAccountId);
             }
 
             Account receiver = accountRepository.findByAccountId(receiverAccountId)
-                    .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+                    .orElseThrow(() -> new RuntimeException("Receiver account not found: " + receiverAccountId));
 
             sender.setBalance(sender.getBalance().subtract(amount));
             accountRepository.save(sender);
@@ -56,9 +56,9 @@ public class PaymentService {
 
         paymentProcessResponse.put("transactionId", transaction.getId().toString());
         paymentProcessResponse.put("status", transaction.getStatus().name());
-        paymentProcessResponse.put("message", "Payment processed successfully");
+        paymentProcessResponse.put("message", transaction.getStatus().equals(TransactionStatusEnum.SUCCESS) ? "Payment processed successfully" : "Payment processing failed");
 
-        return paymentProcessResponse.toString();
+        return paymentProcessResponse;
     }
 
     private Transaction saveTransactionIntoDB(String senderAccountId, String receiverAccountId, BigDecimal amount, String currency, TransactionStatusEnum status) {
