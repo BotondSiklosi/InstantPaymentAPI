@@ -51,6 +51,7 @@ CREATE TABLE dbuser.TRANSACTION
     receiver_account_id VARCHAR(50)    NOT NULL,
     amount              DECIMAL(19, 4) NOT NULL,
     currency            VARCHAR(10)    NOT NULL,
+    message            VARCHAR(100),
     status              VARCHAR(20)    NOT NULL,
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

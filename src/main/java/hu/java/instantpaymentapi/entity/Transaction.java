@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class Transaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "sender_account_id")
@@ -33,6 +33,9 @@ public class Transaction {
 
     @Column(name = "currency")
     private String currency;
+
+    @Column(name = "message")
+    private String message;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

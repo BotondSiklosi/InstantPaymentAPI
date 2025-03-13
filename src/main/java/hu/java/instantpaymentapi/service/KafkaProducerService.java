@@ -15,8 +15,8 @@ public class KafkaProducerService {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
-    public void sendMessage(String topic, String message, String TransactionId) {
+    @Retryable(backoff = @Backoff(delay = 1000))
+    public void sendMessage(String topic, String TransactionId, String message){
         CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, TransactionId, message);
 
         future.whenComplete((result, ex) -> {

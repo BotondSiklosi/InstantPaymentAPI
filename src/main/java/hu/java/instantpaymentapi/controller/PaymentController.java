@@ -1,5 +1,6 @@
 package hu.java.instantpaymentapi.controller;
 
+import hu.java.instantpaymentapi.exception.ConcurrentTransactionException;
 import hu.java.instantpaymentapi.exception.PaymentFailedException;
 import hu.java.instantpaymentapi.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -24,17 +25,18 @@ public class PaymentController {
             @RequestParam String senderAccountId,
             @RequestParam String receiverAccountId,
             @RequestParam BigDecimal amount,
-            @RequestParam String currency) {
+            @RequestParam String currency,
+            @RequestParam String message) {
 
         try {
-            Map<String, String> response = paymentService.processPayment(senderAccountId, receiverAccountId, amount, currency);
+            Map<String, String> response = paymentService.processPayment(senderAccountId, receiverAccountId, amount, currency, message);
 
             if (response.get("status").equals("FAILED")) {
                 throw new PaymentFailedException("Payment failed: " + response.get("message"));
             }
 
             return ResponseEntity.ok(response.toString());
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

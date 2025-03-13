@@ -16,6 +16,12 @@ public class PaymentExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.PAYMENT_REQUIRED);
     }
 
+    @ExceptionHandler(ConcurrentTransactionException.class)
+    public ResponseEntity<ErrorResponse> handleConcurrencyException(ConcurrentTransactionException ex) {
+        ErrorResponse errorResponse = new ErrorResponse("PAYMENT_FAILED", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred: " + ex.getMessage());
