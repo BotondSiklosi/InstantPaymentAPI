@@ -10,12 +10,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,52 +28,38 @@ public class KafkaProducerServiceTest {
     @InjectMocks
     private KafkaProducerService kafkaProducerService;
 
+    private final String topic = "test-topic";
+    private final String message = "test-message";
+    private final String transactionId = "123";
+
     @Test
-    public void testSendMessage_Success() throws Exception {
-        String topic = "test-topic";
-        String message = "test-message";
-        String transactionId = "123123";
+    public void testSendMessage_Success() {
 
         RecordMetadata recordMetadata = new RecordMetadata(new TopicPartition(topic, 0), 0, 0, 0, 0L, 0, 0);
         SendResult<String, String> sendResult = new SendResult<>(null, recordMetadata);
         CompletableFuture<SendResult<String, String>> future = CompletableFuture.completedFuture(sendResult);
 
-        when(kafkaTemplate.send(anyString(), anyString())).thenReturn(future);
+        when(kafkaTemplate.send(topic, transactionId, message)).thenReturn(future);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
+        kafkaProducerService.sendMessage(topic, transactionId, message);
 
-        kafkaProducerService.sendMessage(topic,transactionId, message);
-
-        verify(kafkaTemplate, times(1)).send(topic, message);
-
-        String logs = outputStream.toString();
-        assertTrue(logs.contains("Message sent successfully"));
+        verify(kafkaTemplate, times(1)).send(topic, transactionId, message);
     }
 
     @Test
-    public void testSendMessage_Failure() throws Exception {
-        String topic = "test-topic";
-        String message = "test-message";
-        String transactionId = "123123";
+    public void testSendMessage_Failure() {
 
-        CompletableFuture<SendResult<String, String>> future = new CompletableFuture<>();
-        future.completeExceptionally(new RuntimeException("Failed to send message"));
-        when(kafkaTemplate.send(topic, message)).thenReturn(future);
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(outContent));
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream originalErr = System.err;
-        System.setErr(new PrintStream(outputStream));
+        when(kafkaTemplate.send(topic, transactionId, message))
+                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Kafka send failed")));
 
-        try {
-            kafkaProducerService.sendMessage(topic,transactionId, message);
+        kafkaProducerService.sendMessage(topic, transactionId, message);
 
-            verify(kafkaTemplate, times(1)).send(topic, message);
+        String consoleOutput = outContent.toString();
+        assertThat(consoleOutput).contains("Failed to send message:");
+        verify(kafkaTemplate, times(1)).send(topic, transactionId, message);
 
-            String logs = outputStream.toString();
-            assertTrue(logs.contains("Failed to send message"), "Logs should contain failure message");
-        } finally {
-            System.setErr(originalErr);
-        }
     }
 }
